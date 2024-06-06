@@ -55,14 +55,32 @@ jobs:
     - name: List downloaded files
       run: ls -R ./publish
 
+    - name: Get Previous Release
+      id: get_previous_release
+      uses: stefanzweifel/git-auto-commit-action@v4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        commit_message: "Update version"
+        file_pattern: "version.txt"
+
+    - name: Increment Version
+      id: increment_version
+      uses: einaregilsson/incremental-release@v2
+      with:
+        major-pattern: '^BREAKING'
+        minor-pattern: '^feat'
+        default: 'patch'
+        token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
+        tag_name: ${{ steps.increment_version.outputs.tag }}
+        release_name: Release ${{ steps.increment_version.outputs.tag }}
         draft: false
         prerelease: false
 
@@ -72,6 +90,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./publish/MTLSExample.dll # Adjust the asset path based on the actual file name
-        asset_name: MTLSExample.dll # Adjust the asset name based on the actual file name
+        asset_path: ./publish/MTLSExample.exe # Adjust the asset path based on the actual file name
+        asset_name: MTLSExample.exe # Adjust the asset name based on the actual file name
         asset_content_type: application/octet-stream
