@@ -14,12 +14,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4 # Update to use Node.js 20
 
     - name: Set up .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3 # Update to use Node.js 20
       with:
-        dotnet-version: '5.0.x'
+        dotnet-version: '6.0.x' # Use .NET 6.0, which is a supported LTS version
 
     - name: Restore dependencies
       run: dotnet restore
