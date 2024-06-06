@@ -99,8 +99,9 @@ jobs:
             sha: context.sha,
           });
 
-          return { new_version: newVersion };
-      result-encoding: string
+          return newVersion;
+      outputs:
+        new_version: ${{ steps.bump_version.outputs.new_version }}
 
     - name: Create Release
       id: create_release
