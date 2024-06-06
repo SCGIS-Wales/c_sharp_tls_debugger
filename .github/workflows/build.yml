@@ -54,7 +54,7 @@ jobs:
       run: ls -R ./publish
 
     - name: Scan for Viruses
-      uses: AxelVideo/github-action-clamav@v1
+      uses: cybersecsi/clamav-action@v1.0.0
       with:
         path: ./publish
 
