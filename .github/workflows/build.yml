@@ -80,6 +80,7 @@ jobs:
       with:
         script: |
           const semver = require('semver');
+          const core = require('@actions/core');
 
           // Get the latest release
           const latestRelease = await github.repos.getLatestRelease({
@@ -99,9 +100,7 @@ jobs:
             sha: context.sha,
           });
 
-          return newVersion;
-      outputs:
-        new_version: ${{ steps.bump_version.outputs.new_version }}
+          core.setOutput('new_version', newVersion);
 
     - name: Create Release
       id: create_release
