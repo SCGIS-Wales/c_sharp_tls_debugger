@@ -1,4 +1,4 @@
-name: Build, Scan and Release
+name: Build, Scan, and Release
 
 on:
   push:
@@ -44,4 +44,70 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Download Arti
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: MTLSExample
+        path: ./publish
+
+    - name: List downloaded files
+      run: ls -R ./publish
+
+    - name: Scan for Viruses
+      uses: AxelVideo/github-action-clamav@v1
+      with:
+        path: ./publish
+
+  release:
+    needs: scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: MTLSExample
+        path: ./publish
+
+    - name: List downloaded files
+      run: ls -R ./publish
+
+    - name: Bump Version and Tag
+      id: bump_version
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const semver = require('semver');
+
+          // Get the latest release
+          const latestRelease = await github.repos.getLatestRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          });
+
+          // Parse the version
+          const latestVersion = latestRelease.data.tag_name;
+          const newVersion = semver.inc(latestVersion, 'patch'); // You can adjust 'patch' to 'minor' or 'major' as needed
+
+          // Create a new tag
+          await github.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `refs/tags/${newVersion}`,
+            sha: context.sha,
+          });
+
+          return { new_version: newVersion };
+      result-encoding: string
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./publish/MTLSExample.exe
+        tag_name: ${{ steps.bump_version.outputs.new_version }}
+        release_name: Release ${{ steps.bump_version.outputs.new_version }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
