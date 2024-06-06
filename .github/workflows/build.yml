@@ -1,4 +1,4 @@
-name: Build, Scan, and Release
+name: Build and Release
 
 on:
   push:
@@ -39,27 +39,8 @@ jobs:
         name: MTLSExample
         path: ./publish
 
-  scan:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download Artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: MTLSExample
-        path: ./publish
-
-    - name: List downloaded files
-      run: ls -R ./publish
-
-    - name: Scan for Viruses
-      uses: geekzter/clamav-action@v1
-      with:
-        path: ./publish
-
   release:
-    needs: scan
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
