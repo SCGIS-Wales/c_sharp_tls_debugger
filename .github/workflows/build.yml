@@ -54,7 +54,7 @@ jobs:
       run: ls -R ./publish
 
     - name: Scan for Viruses
-      uses: cybersecsi/clamav-action@v1.0.0
+      uses: geekzter/clamav-action@v1
       with:
         path: ./publish
 
